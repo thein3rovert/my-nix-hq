@@ -14,6 +14,18 @@ let
       };
     };
   };
+
+  # We want multiple uses to define a list of markers
+
+  # Here we have a userType and their deprarture marker
+  userType = lib.types.submodules {
+    options = {
+      departure = lib.mkOption {
+        type = markerType;
+        default = { };
+      };
+    };
+  };
 in
 {
   # Create a list of markers of type markerType
@@ -29,6 +41,12 @@ in
     map.markers = [
       { location = "new york"; }
     ];
+
+    # In case we do not pass in a value for center or zoom
+    # then default is center
+    map.center = lib.mkIf (lib.length config.map.markers >= 1) null;
+
+    map.zoom = lib.mkIf (lib.length config.map.markers >= 2) null;
 
     # Here we buiding a request param for the
     # geolocation api.
