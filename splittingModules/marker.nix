@@ -17,9 +17,12 @@ let
 
   # We want multiple uses to define a list of markers
 
-  # Here we have a userType and their deprarture marker
+  # Here we have a submodules of our
+  # userType and their deprarture markerType
+  # which will be of type location(str)
   userType = lib.types.submodules {
     options = {
+      # Location == departure
       departure = lib.mkOption {
         type = markerType;
         default = { };
@@ -33,14 +36,29 @@ in
     map.markers = lib.mkOption {
       type = lib.types.listOf markerType;
     };
+
+    # Define our userType
+    # - we need a attribute set of users of type
+    # user type with departure(location)
+    users = lib.mkOption {
+      type = lib.types.attrsOf userType;
+    };
   };
 
   # Making use of the marker in this case we only
   # using one marker with location of type str.
   config = {
-    map.markers = [
-      { location = "new york"; }
-    ];
+    #   map.markers = [
+    #     { location = "new york"; }
+    #   ];
+
+    # Check if location is not null
+    # Take all depacture(location from users)
+    map.markers = lib.filter (marker: marker.location != null) (
+      lib.concatMap (user: [
+        user.departure
+      ]) (lib.attrValues config.users)
+    );
 
     # In case we do not pass in a value for center or zoom
     # then default is center
