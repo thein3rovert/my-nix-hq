@@ -2,6 +2,9 @@
 let
   # Here we are assigning values to option define in
   # another module
+  # EXAMPLE: users.<name>.departure.location
+  # TODO: Need a way to set the user
+
   # We create a submodules that includes
   # a markerType with a location option
   markerType = lib.types.submodule {
@@ -20,7 +23,7 @@ let
   # Here we have a submodules of our
   # userType and their deprarture markerType
   # which will be of type location(str)
-  userType = lib.types.submodules {
+  userType = lib.types.submodule {
     options = {
       # Location == departure
       departure = lib.mkOption {
@@ -33,15 +36,15 @@ in
 {
   # Create a list of markers of type markerType
   options = {
-    map.markers = lib.mkOption {
-      type = lib.types.listOf markerType;
-    };
-
     # Define our userType
     # - we need a attribute set of users of type
     # user type with departure(location)
     users = lib.mkOption {
       type = lib.types.attrsOf userType;
+    };
+
+    map.markers = lib.mkOption {
+      type = lib.types.listOf markerType;
     };
   };
 
