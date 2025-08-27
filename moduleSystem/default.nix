@@ -79,10 +79,16 @@
 
     users = {
       samad = {
-        departure.location = "Kano";
+        departure = {
+          location = "Kano";
+          style = {
+            size = "tiny";
+          };
+        };
       };
       marek = {
         departure.location = "Nigeria";
+        departure.style.size = "tiny";
       };
     };
   };

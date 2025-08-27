@@ -29,6 +29,17 @@ let
         type = lib.types.nullOr markerColorType;
         default = "blue";
       };
+
+      # Set marker size
+      style.size = lib.mkOption {
+        type = lib.types.enum [
+          "tiny"
+          "small"
+          "medium"
+          "large"
+        ];
+        default = [ "small" ];
+      };
     };
   };
 
@@ -116,11 +127,23 @@ in
         paramForMarker =
           marker:
           let
+            size =
+              {
+                tiny = "tiny";
+                small = "small";
+                medium = "mid";
+                large = "null";
+              }
+              .${marker.style.size};
+            color = "${marker.style.color}";
+
             # 'attributes' is a list of strings describing the marker.
             # If the marker has a label, we include it as "label:<label>"
             # Then we add a geocode command to convert the marker's location to coordinates
             attributes = lib.optional (marker.style.label != null) "label:${marker.style.label}" ++ [
-              "color:${marker.style.color}"
+              "size:${size}"
+              "color:${color}"
+              # "color:${marker.style.color}"
               "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
             ];
           in
