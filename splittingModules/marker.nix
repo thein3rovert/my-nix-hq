@@ -24,8 +24,29 @@ let
         type = lib.types.nullOr (lib.types.strMatching "[A-Z0-9]");
         default = null;
       };
+
+      style.color = lib.mkOption {
+        type = lib.types.nullOr markerColorType;
+        default = "blue";
+      };
     };
   };
+
+  # Color type options for the marker label, if the color provided is of #fffff or "colorName"
+  markerColorType = lib.types.either (lib.types.strMatching "0x[0-9A-F]{6}") (
+    lib.types.enum [
+      "black"
+      "brown"
+      "green"
+      "purple"
+      "yellow"
+      "blue"
+      "grey"
+      "orange"
+      "red"
+      "white"
+    ]
+  );
 
   # We want multiple uses to define a list of markers
 
@@ -99,6 +120,7 @@ in
             # If the marker has a label, we include it as "label:<label>"
             # Then we add a geocode command to convert the marker's location to coordinates
             attributes = lib.optional (marker.style.label != null) "label:${marker.style.label}" ++ [
+              "color:${marker.style.color}"
               "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
             ];
           in
