@@ -73,15 +73,25 @@ let
           type = markerType;
           default = { }; # Allows us to set a default attrbute of type user in config
         };
+        # Location == arrival
+        arrival = lib.mkOption {
+          type = markerType;
+          default = { };
+        };
+
       };
       config = {
         departure.style.label = lib.mkDefault (firstUpperAlnum name);
+        arrival.style.label = lib.mkDefault (firstUpperAlnum name);
       };
     }
   );
-
 in
 {
+  imports = [
+    ../pathModule/path.nix
+  ];
+
   # Create a list of markers of type markerType
   options = {
     # Define our userType
@@ -109,6 +119,7 @@ in
     map.markers = lib.filter (marker: marker.location != null) (
       lib.concatMap (user: [
         user.departure
+        user.arrival
       ]) (lib.attrValues config.users)
     );
 
@@ -140,12 +151,15 @@ in
             # 'attributes' is a list of strings describing the marker.
             # If the marker has a label, we include it as "label:<label>"
             # Then we add a geocode command to convert the marker's location to coordinates
-            attributes = lib.optional (marker.style.label != null) "label:${marker.style.label}" ++ [
-              "size:${size}"
-              "color:${color}"
-              # "color:${marker.style.color}"
-              "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
-            ];
+            attributes =
+              lib.optional (marker.style.label != null) "label:${marker.style.label}"
+              ++ lib.optional (marker.style.label != null) "size:${size}"
+              ++ [
+                # "size:${size}"
+                "color:${color}"
+                # "color:${marker.style.color}"
+                "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
+              ];
           in
           # Join all the attributes for a marker with "|" and wrap in markers=""
           "markers=\"${lib.concatStringsSep "|" attributes}\"";

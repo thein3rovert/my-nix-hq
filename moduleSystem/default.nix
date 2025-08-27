@@ -85,10 +85,20 @@
             size = "tiny";
           };
         };
+        arrival = {
+          location = "Abuja";
+          style = {
+            size = "tiny";
+          };
+        };
       };
+
       marek = {
         departure.location = "Nigeria";
         departure.style.size = "tiny";
+
+        arrival.location = "Paris";
+        arrival.style.size = "tiny";
       };
     };
   };
