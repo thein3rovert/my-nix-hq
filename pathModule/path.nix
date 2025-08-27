@@ -10,6 +10,19 @@ let
       locations = lib.mkOption {
         type = lib.types.listOf lib.types.str;
       };
+      style = lib.mkOption {
+        type = pathStyleType;
+        default = { };
+      };
+    };
+  };
+
+  pathStyleType = lib.types.submodule {
+    options = {
+      weights = lib.mkOption {
+        type = lib.types.ints.between 1 20;
+        default = 5;
+      };
     };
   };
 in
@@ -44,7 +57,9 @@ in
           path:
           let
             # map the location attibutes to the path locations
-            attributes = builtins.map attrForLocation path.locations;
+            attributes = [
+              "weight:${toString path.style.weights}"
+            ] ++ builtins.map attrForLocation path.locations;
           in
           ''path="${lib.concatStringsSep "|" attributes}"'';
       in
