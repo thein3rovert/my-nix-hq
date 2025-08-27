@@ -9,7 +9,8 @@
     ../splittingModules/marker.nix
   ];
 
-  # Using the mkOption function to declare script
+  # Using the mkOption function to declare options
+  # needed for the map
   options = {
     scripts.output = lib.mkOption {
       type = lib.types.package;
