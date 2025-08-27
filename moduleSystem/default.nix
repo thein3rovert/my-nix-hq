@@ -5,6 +5,10 @@
   ...
 }:
 {
+  imports = [
+    ../splittingModules/marker.nix
+  ];
+
   # Using the mkOption function to declare script
   options = {
     scripts.output = lib.mkOption {
