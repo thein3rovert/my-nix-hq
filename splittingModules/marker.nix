@@ -15,6 +15,11 @@ let
         type = lib.types.nullOr lib.types.str;
         default = null;
       };
+
+      style.label = lib.mkOption {
+        type = lib.types.nullOr (lib.types.strMatching "[A-Z0-9");
+        default = null;
+      };
     };
   };
 
@@ -75,11 +80,27 @@ in
     # as input
     requestParams =
       let
-        paramForMarker = builtins.map (
-          marker: "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
-        ) config.map.markers;
+        paramForMarker =
+          marker:
+          let
+            # 'attributes' is a list of strings describing the marker.
+            # If the marker has a label, we include it as "label:<label>"
+            # Then we add a geocode command to convert the marker's location to coordinates
+            attributes = lib.optional (marker.style.label != null) "label:${marker.style.label}" ++ [
+              "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
+            ];
+          in
+          # Join all the attributes for a marker with "|" and wrap in markers=""
+          "markers=\"${lib.concatStringsSep "|" attributes}\"";
       in
-      # This join the marker command string with | betweem them.
-      [ "markers=\"${lib.concatStringsSep "|" paramForMarker}\"" ];
+      # Apply the 'paramForMarker' function to all markers in the config
+      builtins.map paramForMarker config.map.markers;
+
+    #   paramForMarker = builtins.map (
+    #     marker: "$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg marker.location})"
+    #   ) config.map.markers;
+    # in
+    # # This join the marker command string with | betweem them.
+    # [ "markers=\"${lib.concatStringsSep "|" paramForMarker}\"" ];
   };
 }
