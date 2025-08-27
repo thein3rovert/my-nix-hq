@@ -5,6 +5,10 @@ let
   # EXAMPLE: users.<name>.departure.location
   # TODO: Need a way to set the user
 
+  # Extracts the first alphanumeric character (A-Z, 0-9) from the string, ignoring case and leading non-alphanumerics
+  firstUpperAlnum =
+    str: lib.mapNullable lib.head (builtins.match "[^A-Z0-9]*([A-Z0-9]).*" (lib.toUpper str));
+
   # We create a submodules that includes
   # a markerType with a location option
   markerType = lib.types.submodule {
@@ -17,7 +21,7 @@ let
       };
 
       style.label = lib.mkOption {
-        type = lib.types.nullOr (lib.types.strMatching "[A-Z0-9");
+        type = lib.types.nullOr (lib.types.strMatching "[A-Z0-9]");
         default = null;
       };
     };
@@ -26,17 +30,24 @@ let
   # We want multiple uses to define a list of markers
 
   # Here we have a submodules of our
-  # userType and their deprarture markerType
+  # userType and their departure markerType
   # which will be of type location(str)
-  userType = lib.types.submodule {
-    options = {
-      # Location == departure
-      departure = lib.mkOption {
-        type = markerType;
-        default = { };
+  userType = lib.types.submodule (
+    { name, ... }:
+    {
+      options = {
+        # Location == departure
+        departure = lib.mkOption {
+          type = markerType;
+          default = { }; # Allows us to set a default attrbute of type user in config
+        };
       };
-    };
-  };
+      config = {
+        departure.style.label = lib.mkDefault (firstUpperAlnum name);
+      };
+    }
+  );
+
 in
 {
   # Create a list of markers of type markerType
@@ -56,12 +67,13 @@ in
   # Making use of the marker in this case we only
   # using one marker with location of type str.
   config = {
+
     #   map.markers = [
     #     { location = "new york"; }
     #   ];
 
     # Check if location is not null
-    # Take all depacture(location from users)
+    # Take all departure (location from users)
     map.markers = lib.filter (marker: marker.location != null) (
       lib.concatMap (user: [
         user.departure

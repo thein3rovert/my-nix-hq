@@ -76,5 +76,15 @@
         config.map.center != null
       ) "center=\"$(${config.scripts.geocode}/bin/geocode ${lib.escapeShellArg config.map.center})\"")
     ];
+
+    users = {
+      samad = {
+        departure.location = "Kano";
+      };
+      marek = {
+        departure.location = "Nigeria";
+      };
+    };
   };
+
 }
