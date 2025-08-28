@@ -27,6 +27,11 @@ let
         type = pathColorType;
         default = "red"; # change location line(path) color
       };
+      # Add shortest path
+      geodesic = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+      };
     };
   };
 
@@ -92,6 +97,7 @@ in
             attributes = [
               "weight:${toString path.style.weights}"
               "color:${path.style.color}"
+              "geodesic:${lib.boolToString path.style.geodesic}"
             ] ++ builtins.map attrForLocation path.locations;
           in
           ''path="${lib.concatStringsSep "|" attributes}"'';
