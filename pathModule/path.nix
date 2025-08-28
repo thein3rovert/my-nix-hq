@@ -32,6 +32,16 @@ in
     map.paths = lib.mkOption {
       type = lib.types.listOf pathTypes;
     };
+    users = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options.pathStyle = lib.mkOption {
+            type = pathStyleType;
+            default = { };
+          };
+        }
+      );
+    };
   };
 
   config = {
@@ -42,6 +52,7 @@ in
             user.departure.location
             user.arrival.location
           ];
+          style = user.pathStyle;
         })
         (
           # lib.filter takes a "f" and a list and return the values of the list if true

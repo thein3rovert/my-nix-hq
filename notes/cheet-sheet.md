@@ -22,5 +22,14 @@ In the case above if we want to reuse this pathType for other similar options.
   };
 
 ```
-
-
+We can also create an attributes set of a submodules, intresting!.
+```nix
+users = lib.mkOption {
+      type = lib.types.attrOf (
+        lib.types.submodule {
+          type = pathTypes;
+          default = { };
+        }
+      );
+    };
+```
