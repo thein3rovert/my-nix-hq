@@ -23,8 +23,27 @@ let
         type = lib.types.ints.between 1 20;
         default = 5;
       };
+      color = lib.mkOption {
+        type = pathColorType;
+        default = "red"; # change location line(path) color
+      };
     };
   };
+
+  pathColorType = lib.types.either (lib.types.strMatching "0x[0-9A-F]{6}([0-9A-F]{2})?") (
+    lib.types.enum [
+      "black"
+      "brown"
+      "green"
+      "purple"
+      "yellow"
+      "blue"
+      "gray"
+      "orange"
+      "red"
+      "white"
+    ]
+  );
 in
 {
   # map.paths is a list of pathTypes like "{ pathTypes = {"pathtypes"}};"
@@ -35,9 +54,11 @@ in
     users = lib.mkOption {
       type = lib.types.attrsOf (
         lib.types.submodule {
-          options.pathStyle = lib.mkOption {
-            type = pathStyleType;
-            default = { };
+          options = {
+            pathStyle = lib.mkOption {
+              type = pathStyleType;
+              default = { };
+            };
           };
         }
       );
@@ -70,6 +91,7 @@ in
             # map the location attibutes to the path locations
             attributes = [
               "weight:${toString path.style.weights}"
+              "color:${path.style.color}"
             ] ++ builtins.map attrForLocation path.locations;
           in
           ''path="${lib.concatStringsSep "|" attributes}"'';
